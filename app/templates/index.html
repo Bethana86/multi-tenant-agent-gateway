@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCP Multi-Tenant Agent Security Gateway (MAG)</title>
+    <!-- Google Fonts Outfit & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;1,300&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for beautiful charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="glass-bg"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="app-container">
+        <!-- Main Top Bar -->
+        <header class="app-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <div class="logo-text">
+                    <h1>GCP AGENT SECURITY GATEWAY</h1>
+                    <span class="logo-subtitle">Multi-Tenant Routing Hub & Model Armor Governance</span>
+                </div>
+            </div>
+            
+            <div class="iap-status">
+                <div class="iap-pulse"></div>
+                <i class="fa-solid fa-id-card-clip iap-icon"></i>
+                <div class="iap-user-details">
+                    <span class="iap-label">IAP AUTHENTICATED</span>
+                    <span class="iap-email" id="userEmail">be*******@gmail.com</span>
+                </div>
+                <span class="iap-badge">Project: beth-*****</span>
+            </div>
+        </header>
+
+        <!-- Main Body Grid Layout -->
+        <main class="app-main">
+            
+            <!-- Left Panel: Routing Hub Console -->
+            <section class="panel console-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-network-wired text-accent"></i> Routing Hub & Console</h2>
+                </div>
+                
+                <div class="panel-body">
+                    <!-- Config Section -->
+                    <div class="config-card">
+                        <label class="section-label">Select Tenant Project</label>
+                        <div class="tenant-selector">
+                            <button class="tenant-btn active" id="btnTenantA" onclick="selectTenant('tenant_a')">
+                                <div class="tenant-btn-icon"><i class="fa-solid fa-chart-line"></i></div>
+                                <div class="tenant-btn-meta">
+                                    <span class="t-name">Tenant A: Fusion AI</span>
+                                    <span class="t-desc">Telemetry & Anomalies (BigQuery)</span>
+                                </div>
+                            </button>
+                            <button class="tenant-btn" id="btnTenantB" onclick="selectTenant('tenant_b')">
+                                <div class="tenant-btn-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+                                <div class="tenant-btn-meta">
+                                    <span class="t-name">Tenant B: FinCorp</span>
+                                    <span class="t-desc">Stock Forecasts (SQLite)</span>
+                                </div>
+                            </button>
+                        </div>
+
+                        <label class="section-label mt-4">Security Policy Switches</label>
+                        <div class="security-toggles">
+                            <div class="toggle-container">
+                                <span class="toggle-title"><i class="fa-solid fa-server icon-blue"></i> Cloud Armor Ingress</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggleCloudArmor" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-container">
+                                <span class="toggle-title"><i class="fa-solid fa-shield-heart icon-pink"></i> Model Armor (Prompt/Resp)</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggleModelArmor" checked>
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Section -->
+                    <div class="input-card mt-4">
+                        <div class="input-header">
+                            <label class="section-label m-0">Enter User Query</label>
+                            <span class="input-info" id="charCounter">0/200 chars</span>
+                        </div>
+                        
+                        <div class="chips-container" id="chipsContainer">
+                            <!-- Populated dynamically based on selected tenant -->
+                        </div>
+                        
+                        <div class="prompt-box">
+                            <textarea id="promptInput" rows="3" placeholder="Enter your prompt here..."></textarea>
+                            <button class="send-btn" id="sendBtn" onclick="submitQuery()">
+                                <span>Send Request</span>
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Output Area -->
+                    <div class="response-card mt-4">
+                        <div class="response-header">
+                            <label class="section-label m-0"><i class="fa-solid fa-reply"></i> Agent Response Output</label>
+                            <div class="response-badge-container">
+                                <span class="status-badge" id="responseStatus">Idle</span>
+                            </div>
+                        </div>
+                        <div class="response-body-text" id="responseText">
+                            <p class="placeholder-text">Awaiting input console instructions...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Middle Panel: Live Ingress Pipeline Flow -->
+            <section class="panel pipeline-panel">
+                <div class="panel-header">
+                    <h2><i class="fa-solid fa-diagram-project text-accent"></i> Live Gateway Pipeline</h2>
+                </div>
+                <div class="panel-body flex-center">
+                    <div class="pipeline-container">
+                        <!-- Node 1: User Ingress -->
+                        <div class="pipe-node" id="node-user">
+                            <div class="node-icon"><i class="fa-solid fa-user-tie"></i></div>
+                            <span class="node-name">Client Ingress</span>
+                            <span class="node-meta">User Request</span>
+                        </div>
+
+                        <div class="pipe-line" id="line-1"><div class="flow-indicator"></div></div>
+
+                        <!-- Node 2: Cloud Load Balancer -->
+                        <div class="pipe-node" id="node-clb">
+                            <div class="node-icon"><i class="fa-solid fa-shuffle"></i></div>
+                            <span class="node-name">External ALB</span>
+                            <span class="node-meta">Cloud Ingress</span>
+                        </div>
+
+                        <div class="pipe-line" id="line-2"><div class="flow-indicator"></div></div>
+
+                        <!-- Node 3: Cloud Armor -->
+                        <div class="pipe-node" id="node-armor">
+                            <div class="node-icon"><i class="fa-solid fa-mask"></i></div>
+                            <span class="node-name">Cloud Armor</span>
+                            <span class="node-meta">IP & SQLi Check</span>
+                        </div>
+
+                        <div class="pipe-line" id="line-3"><div class="flow-indicator"></div></div>
+
+                        <!-- Node 4: Model Armor (Prompt) -->
+                        <div class="pipe-node" id="node-model-armor-prompt">
+                            <div class="node-icon"><i class="fa-solid fa-user-shield"></i></div>
+                            <span class="node-name">Model Armor (In)</span>
+                            <span class="node-meta">Prompt Shield</span>
+                        </div>
+
+                        <div class="pipe-line" id="line-4"><div class="flow-indicator"></div></div>
+
+                        <!-- Node 5: Cloud Run Frontend -->
+                        <div class="pipe-node" id="node-cloudrun">
+                            <div class="node-icon"><i class="fa-solid fa-server"></i></div>
+                            <span class="node-name">Cloud Run Router</span>
+                            <span class="node-meta">Frontend Portal</span>
+                        </div>
+
+                        <div class="pipe-line" id="line-5"><div class="flow-indicator"></div></div>
+
+                        <!-- Node 6: Tenant Agent Space -->
+                        <div class="pipe-node" id="node-agent-runtime">
+                            <div class="node-icon"><i class="fa-solid fa-microchip"></i></div>
+                            <span class="node-name">Agent Runtime</span>
+                            <span class="node-meta" id="pipelineTenantMeta">Tenant Project</span>
+                        </div>
+
+                        <div class="pipe-line" id="line-6"><div class="flow-indicator"></div></div>
+
+                        <!-- Node 7: MCP Server & Datastore -->
+                        <div class="pipe-node" id="node-mcp-datastore">
+                            <div class="node-icon"><i class="fa-solid fa-database"></i></div>
+                            <span class="node-name">MCP Server & RAG</span>
+                            <span class="node-meta" id="pipelineDatastoreMeta">BigQuery / SQLite</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom detail panel of active runtime execution -->
+                <div class="runtime-trace-panel">
+                    <div class="trace-header">
+                        <h3><i class="fa-solid fa-terminal"></i> Agent Execution Trace Logs</h3>
+                        <span class="pulsing-record" id="traceStatus">AWAITING TRIGGER</span>
+                    </div>
+                    <div class="trace-console" id="traceConsole">
+                        <span class="trace-line trace-meta">>> Gateway ready. Select tenant and run a prompt to view RAG execution logs.</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Central Governance Tower -->
+            <section class="panel governance-panel">
+                <div class="panel-header justify-between">
+                    <h2><i class="fa-solid fa-tower-observation text-accent"></i> Governance Tower</h2>
+                    <button class="reset-btn" onclick="resetStats()"><i class="fa-solid fa-rotate-left"></i> Reset Stats</button>
+                </div>
+                
+                <div class="panel-body">
+                    <!-- Key Statistics Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-meta">
+                                <span class="stat-label">Total Requests</span>
+                                <span class="stat-number" id="statRequests">0</span>
+                            </div>
+                            <div class="stat-icon icon-blue"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-meta">
+                                <span class="stat-label">Threats Blocked</span>
+                                <span class="stat-number text-danger" id="statBlocks">0</span>
+                            </div>
+                            <div class="stat-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-meta">
+                                <span class="stat-label">PII Redactions</span>
+                                <span class="stat-number text-warning" id="statPII">0</span>
+                            </div>
+                            <div class="stat-icon icon-yellow"><i class="fa-solid fa-user-lock"></i></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-meta">
+                                <span class="stat-label">Accumulated Cost</span>
+                                <span class="stat-number text-success" id="statCost">$0.000</span>
+                            </div>
+                            <div class="stat-icon icon-green"><i class="fa-solid fa-wallet"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="chart-card mt-4">
+                        <label class="section-label m-0 mb-2">Threat Vector Distribution</label>
+                        <div class="chart-canvas-container">
+                            <canvas id="threatChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Audit Log Stream -->
+                    <div class="audit-card mt-4">
+                        <div class="audit-header">
+                            <label class="section-label m-0">Audit Logging Event Stream</label>
+                            <span class="audit-badge">Cloud Logging Active</span>
+                        </div>
+                        <div class="audit-stream" id="auditStream">
+                            <p class="placeholder-text text-center mt-4">No audit events logged yet. Perform queries to generate events.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
